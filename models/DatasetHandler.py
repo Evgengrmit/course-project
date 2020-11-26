@@ -42,9 +42,17 @@ def unique(df):
 
 
 # Поиск коррелирующих признаков
-def cormap(X_data, name=""):
+def cormap(x_data, name=""):
     plt.figure(figsize=(55, 45))
-    sns.heatmap(X_data.corr(), annot=True, cmap="RdBu")
+    sns.heatmap(x_data.corr(), annot=True, cmap="RdBu")
     plt.title(name, fontsize=30)
     plt.plot()
     plt.savefig(f'images/{name}')
+
+
+def plot_auc_array(data_array, tr_roc_auc, test_roc_auc):
+    plt.figure(figsize=(14, 6))
+    plt.plot(data_array, tr_roc_auc, label='train')
+    plt.plot(data_array, test_roc_auc, label='test')
+    plt.legend()
+    plt.show()

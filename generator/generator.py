@@ -74,7 +74,7 @@ class Generator:
     # Шаг 3.
     def get_random_destination(self):
         self.destination_data.dest_ip = '.'.join('%s' % random.randint(0, 255) for i in range(4))
-        #self.destination_data.dest_ip = rd.choice(self.source_['Dst IP'].split(' '))
+        # self.destination_data.dest_ip = rd.choice(self.source_['Dst IP'].split(' '))
         self.destination_data.dest_port = int(rd.choice(self.source_['Dst Port'].split(' ')))
         return self.destination_data
 
