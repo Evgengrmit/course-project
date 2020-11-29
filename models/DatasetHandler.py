@@ -72,3 +72,33 @@ def print_confusion_matrix(confusion_matrix, class_names, figsize = (10,7), font
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     return fig
+
+
+def show_nn_metrics(history):
+    plt.figure(figsize=(20, 37))
+    plt.subplot(3, 1, 1)
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title('Model accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.grid(True)
+
+    plt.subplot(3, 1, 2)
+    plt.plot(history.history['auc'])
+    plt.plot(history.history['val_auc'])
+    plt.title('Model AUC')
+    plt.ylabel('AUC')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.grid(True)
+
+    plt.subplot(3, 1, 3)
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Model loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.grid(True)
