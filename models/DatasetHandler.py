@@ -2,6 +2,7 @@
 Function to prepare big Dataset
 """
 
+import numpy as np
 import pandas as pd
 import time
 import datetime
@@ -58,13 +59,13 @@ def plot_auc_array(data_array, tr_roc_auc, test_roc_auc):
     plt.show()
 
 
-def print_confusion_matrix(confusion_matrix, class_names, figsize = (10,7), fontsize=14):
+def print_confusion_matrix(confusion_matrix, class_names, figsize=(10, 7), fontsize=14):
     df_cm = pd.DataFrame(
         confusion_matrix, index=class_names, columns=class_names,
     )
     fig = plt.figure(figsize=figsize)
     try:
-        heatmap = sns.heatmap(df_cm, annot=True, fmt="d",cmap="Blues")
+        heatmap = sns.heatmap(df_cm, annot=True, fmt="d", cmap="Blues")
     except ValueError:
         raise ValueError("Confusion matrix values must be integers.")
     heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=fontsize)
@@ -102,3 +103,10 @@ def show_nn_metrics(history):
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Test'], loc='upper left')
     plt.grid(True)
+
+
+def del_nan(x, y):
+    msk = ~x.isin([np.nan, np.inf, -np.inf]).any(1)
+    x = x[msk]
+    y = y[msk]
+    return x, y
