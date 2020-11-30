@@ -15,6 +15,10 @@ class CatBoostModel:
         self._train_data = Pool(x_train, y_train)
         self._test_data = Pool(x_test, y_test)
 
+    @property
+    def model(self):
+        return self._model
+
     def set_new_model(self, cbm_model=""):
         if cbm_model == '':
             raise IOError("No path to model")

@@ -19,6 +19,10 @@ class LGBModel:
         self._train_data = lgb.Dataset(x_train, label=y_train, free_raw_data=False).construct()
         self._test_data = lgb.Dataset(x_test, label=y_test, reference=self._train_data, free_raw_data=False).construct()
 
+    @property
+    def model(self):
+        return self._model
+
     @staticmethod
     def set_parameters():
         param_ = {'boosting_type': 'gbdt',
@@ -67,7 +71,7 @@ class LGBModel:
 
 '''
 if __name__ == '__main__':
-    lg = LGBMmodel()
+    lg = LGBModel()
     lg.relearn_model('datasets/Test.csv', 0.3)
     print(lg.get_test_auc())
     print(lg.get_test_accuracy())

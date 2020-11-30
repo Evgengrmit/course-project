@@ -16,6 +16,10 @@ class KerasModel:
         self._train_size = 0.7
         self._metrics = [0.05013519152998924, 0.9858478903770447, 0.997950553894043]
 
+    @property
+    def model(self):
+        return self._model
+
     @staticmethod
     def build_model(n_features, n_classes, num_layers=3):
         model = Sequential()
@@ -67,6 +71,8 @@ class KerasModel:
         return self._metrics[2]
 
 
+'''
 if __name__ == '__main__':
     k = KerasModel()
     k.get_test_accuracy()
+'''
