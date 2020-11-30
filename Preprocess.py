@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from models import DatasetHandler as dh
 from sklearn.preprocessing import MinMaxScaler
