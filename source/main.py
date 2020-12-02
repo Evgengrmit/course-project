@@ -15,8 +15,8 @@ str_hello = """
 str_wrong_num = "Wrong number for model"
 
 
-data_file = 'datasets/Dataset.csv'
-cbm_file  = '../Downloads/cat_boost.cbm'
+data_file = '../datasets/Dataset.csv'
+cbm_file  = '../../Downloads/cat_boost.cbm'
 
 def data_preproc_boost(df):
     y = df['Label'].values

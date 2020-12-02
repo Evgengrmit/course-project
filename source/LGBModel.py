@@ -1,6 +1,6 @@
 import lightgbm as lgb
 from sklearn.model_selection import train_test_split
-import Preprocess as pp
+from source import Preprocess as pp
 from sklearn.metrics import roc_auc_score, accuracy_score
 import warnings
 
@@ -11,7 +11,7 @@ class LGBModel:
 
     def __init__(self):
         self._preprocess = pp.Preprocess()
-        self._model = lgb.Booster(model_file='models/Saving/lgbm_model.mdl')
+        self._model = lgb.Booster(model_file='../models/Saving/lgbm_model.mdl')
         self.parameters = LGBModel.set_parameters()
         self._preprocess.set_dataset('datasets/Dataset.csv')
         self.x, self.y = self._preprocess.process_data_for_gradient()

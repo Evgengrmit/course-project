@@ -3,14 +3,14 @@ from keras.models import Sequential
 from keras.layers import Dense
 from sklearn.model_selection import train_test_split
 import numpy as np
-import Preprocess as pp
+from source import Preprocess as pp
 
 
 class KerasModel:
 
     def __init__(self):
         self._preprocess = pp.Preprocess()
-        self._model = keras.models.load_model('models/Saving/keras_model', )
+        self._model = keras.models.load_model('../models/Saving/keras_model', )
         self._preprocess.set_dataset('datasets/Dataset.csv')
         self._x, self._y = self._preprocess.process_data_for_neural()
         self._train_size = 0.7
