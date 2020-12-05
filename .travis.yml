@@ -10,8 +10,7 @@ jobs:
     - name: "tests"
       script:
         - cd tests
-        - python3 -m unittest -v networks_work_test
-        - python -m unittest -v poker_logic_test
+        - python3 -m unittest -v preprocess_test
 
 notifications:
     email: false
