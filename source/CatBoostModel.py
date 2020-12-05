@@ -3,14 +3,15 @@ from sklearn.model_selection import train_test_split
 from source import Preprocess as pp
 from sklearn.metrics import roc_auc_score, accuracy_score
 from collections import Counter
-
+import sys
+sys.path.append("../..")
 
 class CatBoostModel:
     def __init__(self):
         self._preprocess = pp.Preprocess()
         self._model = CatBoostClassifier()
-        self._model.load_model("../models/Saving/CBmodel.cbm")
-        self._preprocess.set_dataset('../datasets/Dataset.csv')
+        self._model.load_model("models/Saving/CBmodel.cbm")
+        self._preprocess.set_dataset('datasets/Dataset.csv')
         self.x, self.y = self._preprocess.process_data_for_gradient_with_label()
         x_train, x_test, y_train, y_test = train_test_split(self.x, self.y, test_size=0.3, random_state=42)
         self._train_data = Pool(x_train, y_train)

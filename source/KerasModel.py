@@ -6,13 +6,14 @@ import numpy as np
 from source import Preprocess as pp
 from collections import Counter
 from models import DatasetHandler as dh
-
+import sys
+sys.path.append("../..")
 
 class KerasModel:
     def __init__(self):
         self._preprocess = pp.Preprocess()
-        self._model = keras.models.load_model('../models/Saving/keras_model', )
-        self._preprocess.set_dataset('../datasets/Dataset.csv')
+        self._model = keras.models.load_model('models/Saving/keras_model', )
+        self._preprocess.set_dataset('datasets/Dataset.csv')
         self._x, self._y = self._preprocess.process_data_for_neural_with_label()
         self._train_size = 0.7
         self._metrics = [0.05013519152998924, 0.9858478903770447, 0.997950553894043]

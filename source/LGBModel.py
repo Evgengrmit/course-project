@@ -4,6 +4,8 @@ from source import Preprocess as pp
 from sklearn.metrics import roc_auc_score, accuracy_score
 import warnings
 from collections import Counter
+import sys
+sys.path.append("../..")
 warnings.filterwarnings('ignore')
 
 
@@ -11,9 +13,9 @@ class LGBModel:
 
     def __init__(self):
         self._preprocess = pp.Preprocess()
-        self._model = lgb.Booster(model_file='../models/Saving/lgbm_model.mdl')
+        self._model = lgb.Booster(model_file='models/Saving/lgbm_model.mdl')
         self.parameters = LGBModel.set_parameters()
-        self._preprocess.set_dataset('../datasets/Dataset.csv')
+        self._preprocess.set_dataset('datasets/Dataset.csv')
         self.x, self.y = self._preprocess.process_data_for_gradient_with_label()
         x_train, x_test, y_train, y_test = train_test_split(self.x, self.y, test_size=0.3, random_state=42)
         self._train_data = lgb.Dataset(x_train, label=y_train, free_raw_data=False).construct()
@@ -81,4 +83,3 @@ if __name__ == '__main__':
     lg = LGBModel()
     c = Counter(lg.get_predict_unknown('../datasets/imbalanced.csv'))
     print(c)
-
