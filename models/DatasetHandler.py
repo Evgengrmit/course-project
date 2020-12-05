@@ -11,12 +11,27 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-def get_small(path="", size=10, random_state=0):
+def get_balanced(path='', size=10, random_state=0):
+    if size % 2:
+        raise IOError('The number of elements must be even')
     df = pd.read_csv(path)
     df.set_index([df.columns.values[0]], inplace=True)
     df.index.names = [None]
-    small_benign = df.loc[df['Label'] == 'Benign'].sample(n=size, random_state=random_state)
-    small_ddos = df.loc[df['Label'] == 'ddos'].sample(n=size, random_state=random_state)
+    small_benign = df.loc[df['Label'] == 'Benign'].sample(n=int(size / 2), random_state=random_state)
+    small_ddos = df.loc[df['Label'] == 'ddos'].sample(n=int(size / 2), random_state=random_state)
+    small_df = pd.concat([small_benign, small_ddos], ignore_index=True)
+    small_df = small_df.sample(frac=1, random_state=random_state).reset_index(drop=True)
+    return small_df
+
+
+def get_imbalanced(path='', size=10, ddos=0.3, benign=0.7, random_state=20):
+    if int(ddos + benign) != 1:
+        raise IOError('ddos+benign != 1')
+    df = pd.read_csv(path)
+    df.set_index([df.columns.values[0]], inplace=True)
+    df.index.names = [None]
+    small_benign = df.loc[df['Label'] == 'Benign'].sample(n=int(size * benign), random_state=random_state)
+    small_ddos = df.loc[df['Label'] == 'ddos'].sample(n=int(size * ddos), random_state=random_state)
     small_df = pd.concat([small_benign, small_ddos], ignore_index=True)
     small_df = small_df.sample(frac=1, random_state=random_state).reset_index(drop=True)
     return small_df
@@ -25,9 +40,9 @@ def get_small(path="", size=10, random_state=0):
 def toTimestamp(strtime=""):
     timestamp = 0
     if strtime.find('AM') == -1 and strtime.find('PM') == -1:
-        timestamp = time.mktime(datetime.datetime.strptime(strtime, "%d/%m/%Y %H:%M:%S").timetuple())
+        timestamp = time.mktime(datetime.datetime.strptime(strtime, '%d/%m/%Y %H:%M:%S').timetuple())
     else:
-        timestamp = time.mktime(datetime.datetime.strptime(strtime, "%d/%m/%Y %H:%M:%S %p").timetuple())
+        timestamp = time.mktime(datetime.datetime.strptime(strtime, '%d/%m/%Y %H:%M:%S %p').timetuple())
     return timestamp
 
 
@@ -43,9 +58,9 @@ def unique(df):
 
 
 # Поиск коррелирующих признаков
-def cormap(x_data, name=""):
+def cormap(x_data, name=''):
     plt.figure(figsize=(55, 45))
-    sns.heatmap(x_data.corr(), annot=True, cmap="RdBu")
+    sns.heatmap(x_data.corr(), annot=True, cmap='RdBu')
     plt.title(name, fontsize=30)
     plt.plot()
     plt.savefig(f'images/{name}')
@@ -65,9 +80,9 @@ def print_confusion_matrix(confusion_matrix, class_names, figsize=(10, 7), fonts
     )
     fig = plt.figure(figsize=figsize)
     try:
-        heatmap = sns.heatmap(df_cm, annot=True, fmt="d", cmap="Blues")
+        heatmap = sns.heatmap(df_cm, annot=True, fmt='d', cmap='Blues')
     except ValueError:
-        raise ValueError("Confusion matrix values must be integers.")
+        raise ValueError('Confusion matrix values must be integers.')
     heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=fontsize)
     heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha='right', fontsize=fontsize)
     plt.ylabel('True label')
@@ -105,8 +120,14 @@ def show_nn_metrics(history):
     plt.grid(True)
 
 
-def del_nan(x, y):
+def del_nan_data(x):
     msk = ~x.isin([np.nan, np.inf, -np.inf]).any(1)
     x = x[msk]
+    return x
+
+
+def del_nan_with_label(x, y):
+    msk = ~x.isin([np.nan, np.inf, -np.inf]).any(1)
+    x = del_nan_data(x)
     y = y[msk]
     return x, y
