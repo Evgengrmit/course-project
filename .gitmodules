@@ -1,0 +1,3 @@
+[submodule "feature-selector"]
+	path = feature-selector
+	url = https://github.com/WillKoehrsen/feature-selector
