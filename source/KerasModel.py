@@ -4,15 +4,16 @@ from keras.layers import Dense
 from sklearn.model_selection import train_test_split
 import numpy as np
 from source import Preprocess as pp
+from collections import Counter
+from models import DatasetHandler as dh
 
 
 class KerasModel:
-
     def __init__(self):
         self._preprocess = pp.Preprocess()
         self._model = keras.models.load_model('../models/Saving/keras_model', )
-        self._preprocess.set_dataset('datasets/Dataset.csv')
-        self._x, self._y = self._preprocess.process_data_for_neural()
+        self._preprocess.set_dataset('../datasets/Dataset.csv')
+        self._x, self._y = self._preprocess.process_data_for_neural_with_label()
         self._train_size = 0.7
         self._metrics = [0.05013519152998924, 0.9858478903770447, 0.997950553894043]
 
@@ -39,14 +40,14 @@ class KerasModel:
     def set_pool(self, path_to_dataset=''):
         if path_to_dataset != '':
             self._preprocess.set_dataset(path_to_dataset)
-            self._x, self._y = self._preprocess.process_data_for_neural()
+            self._x, self._y = self._preprocess.process_data_for_neural_with_label()
 
-    def get_predict(self, path_to_data=''):
+    def get_predict_with_label(self, path_to_data=''):
         if path_to_data == '':
             raise IOError("No path to data")
         self._preprocess.set_dataset(path_to_data)
-        self._x, self._y = self._preprocess.process_data_for_neural()
-        return self._model.predict_classes(self._x)
+        self._x, self._y = self._preprocess.process_data_for_neural_with_label()
+        return dh.massive(self._model.predict_classes(self._x))
 
     def relearn_model(self, path_to_dataset='', test_size=0.2):
         if path_to_dataset == '':
@@ -70,9 +71,15 @@ class KerasModel:
     def get_test_auc(self):
         return self._metrics[2]
 
+    def get_predict_unknown(self, path_to_data=''):
+        if path_to_data == '':
+            raise IOError("No path to data")
+        self._preprocess.set_dataset(path_to_data)
+        self._x = self._preprocess.get_data_for_predict_neural()
+        return dh.massive(self._model.predict_classes(self._x))
 
-'''
+
 if __name__ == '__main__':
     k = KerasModel()
-    k.get_test_accuracy()
-'''
+    c = Counter(k.get_predict_unknown('../datasets/imbalanced.csv'))
+    print(c)

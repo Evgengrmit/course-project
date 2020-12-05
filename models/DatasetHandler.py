@@ -131,3 +131,12 @@ def del_nan_with_label(x, y):
     x = del_nan_data(x)
     y = y[msk]
     return x, y
+
+
+def massive(x):
+    normal = []
+    for i in x:
+        for j in i:
+            normal.append(j)
+
+    return normal
