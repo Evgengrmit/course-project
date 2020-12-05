@@ -1,0 +1,17 @@
+sudo: required
+language: python
+python: "3.8"
+
+install:
+  - pip install -r requirements.txt
+
+jobs:
+  include:
+    - name: "tests"
+      script:
+        - cd tests
+        - python3 -m unittest -v networks_work_test
+        - python -m unittest -v poker_logic_test
+
+notifications:
+    email: false

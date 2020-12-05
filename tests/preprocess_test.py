@@ -1,7 +1,7 @@
 import unittest
 import sys
 from collections import Counter
-sys.path.append("../..")
+sys.path.append("..")
 
 from source.Preprocess import Preprocess
 
