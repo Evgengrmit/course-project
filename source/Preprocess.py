@@ -122,11 +122,15 @@ class Preprocess:
 
         return self._data
 
+    @property
+    def data(self):
+        return self._data
 
 if __name__ == '__main__':
     prep = Preprocess(seed=435)
+    prep.get_balanced_dataset('../datasets/Dataset.csv',100)
     #prep.get_imbalanced_dataset("/Users/evgenii/DDoS Dataset/final_dataset.csv", size=1000)
-    prep.set_dataset('../datasets/balanced.csv')
+    #prep.set_dataset('../datasets/balanced.csv')
     X = prep.get_data_for_predict_neural()
     #prep.save_dataset('../datasets/imbalanced.csv')
     print(X)
