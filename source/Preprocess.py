@@ -1,29 +1,29 @@
 import pandas as pd
 from models import DatasetHandler as dh
 from sklearn.preprocessing import MinMaxScaler
-
+import copy
 
 class Preprocess:
-    name_of_features = {
-        'Src Port',
-        'Protocol',
-        'Flow Duration',
-        'Tot Fwd Pkts',
-        'Tot Bwd Pkts',
-        'Bwd Pkt Len Max',
-        'Flow Byts/s',
-        'Flow Pkts/s',
-        'Flow IAT Mean',
-        'Fwd PSH Flags',
-        'Bwd PSH Flags',
-        'Bwd Pkts/s',
-        'FIN Flag Cnt',
-        'SYN Flag Cnt',
-        'URG Flag Cnt',
-        'Down/Up Ratio',
-        'Active Mean',
-        'Idle Std',
-        'Label'}
+    name_of_features_array = ['Src Port',
+                              'Protocol',
+                              'Flow Duration',
+                              'Tot Fwd Pkts',
+                              'Tot Bwd Pkts',
+                              'Bwd Pkt Len Max',
+                              'Flow Byts/s',
+                              'Flow Pkts/s',
+                              'Flow IAT Mean',
+                              'Fwd PSH Flags',
+                              'Bwd PSH Flags',
+                              'Bwd Pkts/s',
+                              'FIN Flag Cnt',
+                              'SYN Flag Cnt',
+                              'URG Flag Cnt',
+                              'Down/Up Ratio',
+                              'Active Mean',
+                              'Idle Std',
+                              'Label']
+    name_of_features_set = set(name_of_features_array)
 
     def __init__(self, path='', name='', size=0, seed=0) -> None:
         self._path = path
@@ -46,7 +46,7 @@ class Preprocess:
         self._data = dh.get_balanced(self._path, self._sizeOfBlock, self._seed)
         return self._data
 
-    def get_imbalanced_dataset(self, path='',ddos = 0.3,benign = 0.7, size=0):
+    def get_imbalanced_dataset(self, path='', ddos=0.3, benign=0.7, size=0):
         if path == '' and self._path == '':
             raise IOError("Empty path")
         elif path != '':
@@ -55,7 +55,8 @@ class Preprocess:
             raise IOError("Zero size")
         elif size != 0:
             self._sizeOfBlock = size
-        self._data = dh.get_imbalanced(self._path, self._sizeOfBlock,ddos=ddos,benign = 1-ddos, random_state=self._seed)
+        self._data = dh.get_imbalanced(self._path, self._sizeOfBlock, ddos=ddos, benign=1 - ddos,
+                                       random_state=self._seed)
         return self._data
 
     def set_dataset(self, name=''):
@@ -64,7 +65,8 @@ class Preprocess:
         elif name != '':
             self._name = name
         self._data = pd.read_csv(self._name, index_col=False)
-        self._data = self._data.drop(columns=['Unnamed: 0'])
+        if 'Unnamed: 0' in self._data.columns.to_list():
+            self._data = self._data.drop(columns=['Unnamed: 0'])
         return self._data
 
     def process_data_for_gradient_with_label(self):
@@ -75,11 +77,11 @@ class Preprocess:
                 "This method works with data with class labels. Use the get_data_for_predict method, which works for "
                 "classes without a label")
 
-        if not Preprocess.name_of_features.issubset(data_feat_set):
+        if not Preprocess.name_of_features_set.issubset(data_feat_set):
             raise IOError("There are no necessary attributes in the dataset")
 
         self._data['Label'] = self._data['Label'].replace("ddos", 1).replace("Benign", 0)
-        drop_feat = data_feat_set - Preprocess.name_of_features
+        drop_feat = data_feat_set - Preprocess.name_of_features_set
         self._data = self._data.drop(columns=list(drop_feat))
         self._labels = self._data['Label']
         self._obj = self._data.drop(columns='Label')
@@ -101,7 +103,7 @@ class Preprocess:
 
     def get_data_for_predict_gradient(self):
         data_feat_set = set(self._data.columns.to_list())
-        control = Preprocess.name_of_features
+        control = Preprocess.name_of_features_set
         control.discard('Label')
         if 'Label' in data_feat_set:
             self._data = self._data.drop(columns=['Label'])
@@ -109,30 +111,24 @@ class Preprocess:
 
         if not control.issubset(data_feat_set):
             raise IOError("There are no necessary attributes in the dataset")
-        drop_feat = data_feat_set - Preprocess.name_of_features
+        drop_feat = data_feat_set - Preprocess.name_of_features_set
         self._data = self._data.drop(columns=list(drop_feat))
-
+        t = copy.copy(Preprocess.name_of_features_array)
+        t.pop()
+        self._data = self._data[t]
         return self._data
 
     def get_data_for_predict_neural(self):
         Preprocess.get_data_for_predict_gradient(self)
         self._data = dh.del_nan_data(self._data)
+        t = Preprocess()
+        t.set_dataset('datasets/Dataset.csv')
+        x = dh.del_nan_data(t.get_data_for_predict_gradient())
         sc = MinMaxScaler()
-        self._data = sc.fit_transform(self._data)
-
+        sc.fit(x)
+        self._data = sc.transform(self._data)
         return self._data
 
     @property
     def data(self):
         return self._data
-
-if __name__ == '__main__':
-    prep = Preprocess(seed=435)
-    prep.get_balanced_dataset('../datasets/Dataset.csv',100)
-    #prep.get_imbalanced_dataset("/Users/evgenii/DDoS Dataset/final_dataset.csv", size=1000)
-    #prep.set_dataset('../datasets/balanced.csv')
-    X = prep.get_data_for_predict_neural()
-    #prep.save_dataset('../datasets/imbalanced.csv')
-    print(X)
-
-
