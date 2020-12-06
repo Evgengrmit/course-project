@@ -2,7 +2,6 @@ from catboost import CatBoostClassifier, Pool
 from sklearn.model_selection import train_test_split
 from source import Preprocess as pp
 from sklearn.metrics import roc_auc_score, accuracy_score
-from collections import Counter
 import sys
 sys.path.append("../..")
 
@@ -11,11 +10,9 @@ class CatBoostModel:
         self._preprocess = pp.Preprocess()
         self._model = CatBoostClassifier()
         self._model.load_model("models/Saving/CBmodel.cbm")
-        self._preprocess.set_dataset('datasets/Dataset.csv')
-        self.x, self.y = self._preprocess.process_data_for_gradient_with_label()
-        x_train, x_test, y_train, y_test = train_test_split(self.x, self.y, test_size=0.3, random_state=42)
-        self._train_data = Pool(x_train, y_train)
-        self._test_data = Pool(x_test, y_test)
+        self.x = self.y = 0
+        self._train_data = None
+        self._test_data = None
 
     @property
     def model(self):
@@ -67,9 +64,3 @@ class CatBoostModel:
         self._preprocess.set_dataset(path_to_data)
         self.x = self._preprocess.get_data_for_predict_gradient()
         return self._model.predict(self.x)
-
-
-if __name__ == '__main__':
-    Cb = CatBoostModel()
-    c = Counter(Cb.get_predict_unknown('../datasets/imbalanced.csv'))
-    print(c)

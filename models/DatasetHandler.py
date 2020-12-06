@@ -18,7 +18,7 @@ def get_balanced(path='', size=10, random_state=0):
     df.set_index([df.columns.values[0]], inplace=True)
     df.index.names = [None]
     small_benign = df.loc[(df['Label'] == 'Benign') | (df['Label'] == 0)].sample(n=int(size / 2),
-                                                                                random_state=random_state)
+                                                                                 random_state=random_state)
     small_ddos = df.loc[(df['Label'] == 'ddos') | (df['Label'] == 1)].sample(n=int(size / 2), random_state=random_state)
     small_df = pd.concat([small_benign, small_ddos], ignore_index=True)
     small_df = small_df.sample(frac=1, random_state=random_state).reset_index(drop=True)
@@ -31,8 +31,10 @@ def get_imbalanced(path='', size=10, ddos=0.3, benign=0.7, random_state=20):
     df = pd.read_csv(path)
     df.set_index([df.columns.values[0]], inplace=True)
     df.index.names = [None]
-    small_benign = df.loc[(df['Label'] == 'Benign') | (df['Label'] == 0)].sample(n=int(size * benign), random_state=random_state)
-    small_ddos = df.loc[(df['Label'] == 'ddos') | (df['Label'] == 1)].sample(n=int(size * ddos), random_state=random_state)
+    small_benign = df.loc[(df['Label'] == 'Benign') | (df['Label'] == 0)].sample(n=int(size * benign),
+                                                                                 random_state=random_state)
+    small_ddos = df.loc[(df['Label'] == 'ddos') | (df['Label'] == 1)].sample(n=int(size * ddos),
+                                                                             random_state=random_state)
     small_df = pd.concat([small_benign, small_ddos], ignore_index=True)
     small_df = small_df.sample(frac=1, random_state=random_state).reset_index(drop=True)
     return small_df
@@ -129,7 +131,7 @@ def del_nan_data(x):
 
 def del_nan_with_label(x, y):
     msk = ~x.isin([np.nan, np.inf, -np.inf]).any(1)
-    x = del_nan_data(x)
+    x = x[msk]
     y = y[msk]
     return x, y
 
@@ -138,6 +140,6 @@ def massive(x):
     normal = []
     for i in x:
         for j in i:
-            normal.append(j)
+            normal.append(j ^ 1)
 
     return normal
