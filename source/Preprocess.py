@@ -3,6 +3,7 @@ from models import DatasetHandler as dh
 from sklearn.preprocessing import MinMaxScaler
 import copy
 
+
 class Preprocess:
     name_of_features_array = ['Src Port',
                               'Protocol',

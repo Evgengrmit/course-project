@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from source import Preprocess as pp
 from sklearn.metrics import roc_auc_score, accuracy_score
 import sys
-sys.path.append("../..")
+
 
 class CatBoostModel:
     def __init__(self):
