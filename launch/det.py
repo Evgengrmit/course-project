@@ -8,7 +8,7 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 
-if __name__ == '__main__':
+def main():
     layout = [
         [sg.Text('Выберите модель'), sg.InputCombo(['Keras', 'CatBoost', 'LightGBM'])],
         [sg.Text('Выберите файл'), sg.FileBrowse()],
@@ -26,3 +26,6 @@ if __name__ == '__main__':
             print(det.results())
         if event in (None, 'Exit', 'Cancel'):
             break
+
+if __name__ == '__main__':
+    main()
