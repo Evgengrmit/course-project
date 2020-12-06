@@ -33,6 +33,11 @@ class Detector:
     def results(self):
         self._count = dict(Counter(self._predicts))
         res_str = f'{self._model_name}:\n'
-        res_str += f'DDoS objects: {self._count[1]}\n'
-        res_str += f'Benign objects: {self._count[0]}'
+        if len(self._count) == 2:
+            res_str += f'DDoS objects: {self._count[1]}\n'
+            res_str += f'Benign objects: {self._count[0]}'
+        elif 0 in self._count:
+            res_str += f'Benign objects: {self._count[0]}'
+        elif 1 in self._count:
+            res_str += f'DDoS objects: {self._count[1]}\n'
         return res_str
