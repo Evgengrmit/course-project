@@ -1,6 +1,3 @@
-import sys
-
-sys.path.append("..")
 from generator import generator
 from tkinter import *
 import time

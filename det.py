@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 import sys
-sys.path.append('..')
+sys.path.append('')
 from detector import Detector as dt
 import warnings
 
@@ -19,6 +19,7 @@ def main():
     while True:  # The Event Loop
         event, values = window.read()
         if event == 'Submit':
+
             name_of_model = values[0]
             path_to_data = values['Browse']
             det = dt.Detector(name_of_model)
@@ -26,6 +27,7 @@ def main():
             print(det.results())
         if event in (None, 'Exit', 'Cancel'):
             break
+
 
 if __name__ == '__main__':
     main()
