@@ -1,10 +1,12 @@
 import unittest
-import datetime, os, random, sys
+import datetime, os, random, sys, math
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../course-project"))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-from generator.ddos_generator import DdosGenerator
+from generator.ddos_generator import DdosGenerator, ThreadState
 from scapy.layers.inet import IP, TCP
+from scapy.utils import rdpcap
+
 '''import sys
 sys.path.append("..")'''
 
@@ -87,7 +89,7 @@ class TestGenerator(unittest.TestCase):
                                                          self.syn_flag_count, self.urg_flag_count, self.fin_flag_count,
                                                          self.psh_flag_count, self.source_ip, self.source_port,
                                                          self.protocol, self.dest_ip, self.dest_port,
-                                                         self.delay_between_packets)
+                                                         self.delay_between_packets, ThreadState())
 
         self.assertEqual(len(packets_list), self.packets_count)
 
@@ -101,12 +103,12 @@ class TestGenerator(unittest.TestCase):
                                                          self.syn_flag_count, self.urg_flag_count, self.fin_flag_count,
                                                          self.psh_flag_count, self.source_ip, self.source_port,
                                                          self.protocol, self.dest_ip, self.dest_port,
-                                                         self.delay_between_packets)
+                                                         self.delay_between_packets, ThreadState())
 
         self.generator._save_packets(packets_list, self.source_ip, self.dest_ip)
 
         self.assertTrue(os.path.exists(self.generator._result_dir))
-        
+
         dir_name = os.path.join(self.generator._result_dir, self.dest_ip)
 
         self.assertTrue(os.path.exists(dir_name))
@@ -120,6 +122,43 @@ class TestGenerator(unittest.TestCase):
 
         self.assertIn('.pcap', dir_items[0])
         self.assertIn(f"{self.source_ip}_{datetime.datetime.today().strftime('%d.%m.%Y')}", dir_items[0])
+
+        read_packets = rdpcap(item_path)
+
+        self.assertEqual(len(read_packets), self.packets_count)
+
+        for num, packet in enumerate(read_packets):
+            self._test_packet(packet)
+            self.assertEqual(int(packet.time), int(self.packet_timestamp))
+
+    def test_generate_flows(self):
+
+        source = random.choice(self.generator._ddos_data)
+
+        flow_counts = 3
+
+        self.generator._generate_flows(flow_counts, source, self.packet_timestamp, self.packet_timestamp,
+                                       self.source_ip,
+                                       self.source_port, self.protocol, self.dest_ip, self.dest_port, ThreadState())
+
+        dir_name = os.path.join(self.generator._result_dir, self.dest_ip)
+        dir_items = os.listdir(dir_name)
+
+        self.assertEqual(len(dir_items), flow_counts)
+
+    def test_generate_bots(self):
+        bots_count = random.randint(1, 2)
+
+        self.generator.generate_packets(self.dest_ip, self.dest_port, bots_count, ThreadState())
+        dir_name = os.path.join(self.generator._result_dir, self.dest_ip)
+
+        dir_items = os.listdir(dir_name)
+        read_source_ip_list = []
+
+        for item in dir_items:
+            read_source_ip_list.append(item.split('_')[0])
+        read_source_ip_list = list(set(read_source_ip_list))
+        self.assertEqual(len(read_source_ip_list), bots_count)
 
 
 if __name__ == '__main__':

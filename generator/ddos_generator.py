@@ -5,6 +5,15 @@ from scapy.all import *
 
 script_path = os.path.dirname(os.path.abspath(__file__))
 
+# класс состояния потоков. Методы генерации пакетов и формирования тестового датасета запускаются
+# в потоках. Нужно уметь их останавливать при закрытии приложения. Для этого будем создавать специальный
+# объект этого класса. Он создаётся во внешнем приложении (gui) и передается в методы класса DdosGenerator,
+# отслеживая поле stop этого объекта - функция корректно завершается, завершая выполнения всего потока
+class ThreadState:
+
+    def __init__(self):
+        self.stop = False
+
 
 class DdosGenerator:
 
@@ -92,7 +101,7 @@ class DdosGenerator:
     def _create_packet_set(self, packets_count, packet_len_avg, packet_len_std, current_timestamp,
                            all_packets_count, syn_flag_count, urg_flag_count, fin_flag_count, psh_fwd_flag_count,
                            source_ip,
-                           source_port, protocol, dest_ip, dest_port, delay_between_packets):
+                           source_port, protocol, dest_ip, dest_port, delay_between_packets, thread_state):
         '''
            Функция предназначена для внутреннего использования. Создает набор пакетов по заданным параметрам
         '''
@@ -100,6 +109,9 @@ class DdosGenerator:
 
         # генерируем каждый пакет в перечне пакетов
         for packet_number in range(packets_count):
+
+            if thread_state.stop:
+                return
 
             # выбираем по закону нормального распределения длину пакета на основе данных предварительного датасета
             packet_len = random.normalvariate(packet_len_avg, packet_len_std)
@@ -119,7 +131,85 @@ class DdosGenerator:
 
         return packet_list
 
-    def generate_packets(self, dest_ip, dest_port, bots_count):
+    def _generate_flows(self, flow_counts, source, current_timestamp, start_timestamp, source_ip, source_port,
+                          protocol, dest_ip, dest_port, thread_state):
+        # для каждого потока будем генерировать пакеты
+        for flow_number in range(flow_counts):
+
+            if thread_state.stop:
+                return
+
+            print(f'Генерируем поток пакетов {flow_number} (всего {flow_counts})...', end='\r')
+
+            # выбираем по занону нормального распределения продолжительность потока
+            flow_duration = random.normalvariate(float(source['Flow Duration Mean']),
+                                                 float(source['Flow Duration Std']))
+            while flow_duration <= 0:
+                flow_duration = random.normalvariate(float(source['Flow Duration Mean']),
+                                                     float(source['Flow Duration Std']))
+
+            # в исходном датасете продолжительность задана в микросекундах. Переводим её в секунды. Так легче считать
+            flow_duration /= 10 ** 6
+
+            # вычиляем соотношение средней продолжительности потока для данной машины и выбранного значения. Это
+            # понадобится для определения количества пакетов, отправляемом в данном потоке
+            packets_count_ratio = flow_duration / (float(source['Flow Duration Mean']) / 10 ** 6)
+
+            # вычисляем количество отправляемых пакетов
+            packets_fwd_count = int(float(source['Tot Fwd Pkts']) * packets_count_ratio)
+            packets_bwd_count = int(float(source['Tot Bwd Pkts']) * packets_count_ratio)
+
+            # общее количество пакетов, посылаемое в обе стороны (от источника к жертве и обратно)
+            all_packets_count = packets_fwd_count + packets_bwd_count
+
+            # получаем из предварительного датасета изначальное количество флаков в пакетах 1 потока
+            syn_flag_count = float(source['SYN Flag Cnt'])
+            urg_flag_count = float(source['URG Flag Cnt'])
+            fin_flag_count = float(source['FIN Flag Cnt'])
+
+            psh_fwd_flag_count = float(source['Fwd PSH Flags'])
+
+            # вычисляем задержку между отправляемыми пакетами. Т.к. время между пакетами для детектирования
+            # атаки Вы не используете, то считаем, что пакеты отправлялись в потоке через абсолютно раные
+            # промежутки времени. Хотя в реальности это конечно, происходит не так. Но для упрощения сделаем
+            # именно так, т.к. это не повлияет на итоговый датасет
+            packet_list = []
+
+            if packets_fwd_count > 0:
+                delay_between_fwd_packets = flow_duration / packets_fwd_count
+
+                packet_list += self._create_packet_set(packets_fwd_count, float(source['Fwd Pkt Len Mean']),
+                                                      float(source['Fwd Pkt Len Std']), current_timestamp,
+                                                      all_packets_count, syn_flag_count, urg_flag_count,
+                                                      fin_flag_count, psh_fwd_flag_count, source_ip, source_port,
+                                                      protocol, dest_ip, dest_port, delay_between_fwd_packets, thread_state)
+
+            psh_bwd_flag_count = float(source['Bwd PSH Flags'])
+
+            # вычисляем задержку для пакетов, отправляемых в обратную сторону и время отправки первого пакета
+
+            delay_between_bwd_packets = 0
+
+            if packets_bwd_count > 0:
+                delay_between_bwd_packets = flow_duration / packets_bwd_count
+                current_timestamp = start_timestamp + delay_between_bwd_packets
+
+                packet_list += self._create_packet_set(packets_bwd_count, float(source['Bwd Pkt Len Mean']),
+                                                       float(source['Bwd Pkt Len Std']), current_timestamp,
+                                                       all_packets_count, syn_flag_count, urg_flag_count,
+                                                       fin_flag_count, psh_fwd_flag_count, source_ip, source_port,
+                                                       protocol, dest_ip, dest_port, delay_between_bwd_packets, thread_state)
+
+            # вычисляем время между потоками и сдвигаем время отправки первого пакета из следующего потока
+            # на эту величину
+            delay_between_flows = random.normalvariate(float(source['Flow IAT Mean']),
+                                                       float(source['Flow IAT Std']))
+
+            current_timestamp = start_timestamp + flow_duration + delay_between_flows / 10 ** 6
+
+            self._save_packets(packet_list, source_ip, dest_ip)
+
+    def generate_packets(self, dest_ip, dest_port, bots_count, thread_state):
         '''
            Функция может вызываться из вне. Предназначена для генерации пакетов
            для всех машин ботов
@@ -151,82 +241,14 @@ class DdosGenerator:
                 flow_counts = math.ceil(
                     random.normalvariate(float(source['Flows Cnt Mean']), float(source['Flows Cnt Std'])))
 
-            # для каждого потока будем генерировать пакеты
-            for flow_number in range(flow_counts):
-
-                print(f'Генерируем поток пакетов {flow_number} (всего {flow_counts})...', end='\r')
-
-                # выбираем по занону нормального распределения продолжительность потока
-                flow_duration = random.normalvariate(float(source['Flow Duration Mean']),
-                                                     float(source['Flow Duration Std']))
-                while flow_duration <= 0:
-                    flow_duration = random.normalvariate(float(source['Flow Duration Mean']),
-                                                         float(source['Flow Duration Std']))
-
-                # в исходном датасете продолжительность задана в микросекундах. Переводим её в секунды. Так легче считать
-                flow_duration /= 10 ** 6
-
-                # вычиляем соотношение средней продолжительности потока для данной машины и выбранного значения. Это
-                # понадобится для определения количества пакетов, отправляемом в данном потоке
-                packets_count_ratio = flow_duration / (float(source['Flow Duration Mean']) / 10 ** 6)
-
-                # вычисляем количество отправляемых пакетов
-                packets_fwd_count = int(float(source['Tot Fwd Pkts']) * packets_count_ratio)
-                packets_bwd_count = int(float(source['Tot Bwd Pkts']) * packets_count_ratio)
-
-                # общее количество пакетов, посылаемое в обе стороны (от источника к жертве и обратно)
-                all_packets_count = packets_fwd_count + packets_bwd_count
-
-                # получаем из предварительного датасета изначальное количество флаков в пакетах 1 потока
-                syn_flag_count = float(source['SYN Flag Cnt'])
-                urg_flag_count = float(source['URG Flag Cnt'])
-                fin_flag_count = float(source['FIN Flag Cnt'])
-
-                psh_fwd_flag_count = float(source['Fwd PSH Flags'])
-
-                # вычисляем задержку между отправляемыми пакетами. Т.к. время между пакетами для детектирования
-                # атаки Вы не используете, то считаем, что пакеты отправлялись в потоке через абсолютно раные
-                # промежутки времени. Хотя в реальности это конечно, происходит не так. Но для упрощения сделаем
-                # именно так, т.к. это не повлияет на итоговый датасет
-                packet_list = []
-
-                if packets_fwd_count > 0:
-                    delay_between_fwd_packets = flow_duration / packets_fwd_count
-
-                    packet_list += self._create_packet_set(packets_fwd_count, float(source['Fwd Pkt Len Mean']),
-                                                          float(source['Fwd Pkt Len Std']), current_timestamp,
-                                                          all_packets_count, syn_flag_count, urg_flag_count,
-                                                          fin_flag_count, psh_fwd_flag_count, source_ip, source_port,
-                                                          protocol, dest_ip, dest_port, delay_between_fwd_packets)
-
-                psh_bwd_flag_count = float(source['Bwd PSH Flags'])
-
-                # вычисляем задержку для пакетов, отправляемых в обратную сторону и время отправки первого пакета
-
-                delay_between_bwd_packets = 0
-
-                if packets_bwd_count > 0:
-                    delay_between_bwd_packets = flow_duration / packets_bwd_count
-                    current_timestamp = start_timestamp + delay_between_bwd_packets
-
-                    packet_list += self._create_packet_set(packets_bwd_count, float(source['Bwd Pkt Len Mean']),
-                                                           float(source['Bwd Pkt Len Std']), current_timestamp,
-                                                           all_packets_count, syn_flag_count, urg_flag_count,
-                                                           fin_flag_count, psh_fwd_flag_count, source_ip, source_port,
-                                                           protocol, dest_ip, dest_port, delay_between_bwd_packets)
-
-                # вычисляем время между потоками и сдвигаем время отправки первого пакета из следующего потока
-                # на эту величину
-                delay_between_flows = random.normalvariate(float(source['Flow IAT Mean']),
-                                                           float(source['Flow IAT Std']))
-
-                current_timestamp = start_timestamp + flow_duration + delay_between_flows / 10 ** 6
-
-                self._save_packets(packet_list, source_ip, dest_ip)
+            self._generate_flows(flow_counts, source, current_timestamp, start_timestamp, source_ip, source_port,
+                          protocol, dest_ip, dest_port, thread_state)
 
             print()
 
-    def make_test_dataset(self, dest_ip):
+        print("Формирование сетевых пакетов завершено")
+
+    def make_test_dataset(self, dest_ip, thread_state):
         '''
            Функция может вызываться сторонними программами. Предназначена для вычисления данных о сгенерированных
            сетевых пакетах и сборки итогового тестового датасета
@@ -318,6 +340,9 @@ class DdosGenerator:
             # перебираем пакеты из потока и подсчитываем их характеристики
             for packet in packet_list:
 
+                if thread_state.stop:
+                    return
+
                 # общее количество байт, переданных пакетами в потоке
                 flow_total_bytes += len(packet)
 
@@ -388,6 +413,9 @@ class DdosGenerator:
         # теперь вычислим данные о потоках ( время между потоками, активность и простои потоков),
         # добавим эти данные в итоговые словари и запишем словари в файл с итоговым тестовым датасетом
         for src, flow_list in src_data.items():
+
+            if thread_state.stop:
+                return
             # сортируем потоки по времени начала
             flow_list = sorted(flow_list, key=lambda flow_data: flow_data['Flow Start Timestamp'])
 
@@ -431,5 +459,7 @@ class DdosGenerator:
             writer.writerows(flow_list)
 
         csv_file.close()
+
+        print("Сборка тестового датасета завершена")
 
         return filename
