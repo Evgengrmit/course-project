@@ -1,20 +1,15 @@
-import lightgbm as lgb
+from catboost import CatBoostClassifier, Pool
 from sklearn.model_selection import train_test_split
-from source import Preprocess as pp
+from detector import Preprocess as pp
 from sklearn.metrics import roc_auc_score, accuracy_score
-import warnings
 import sys
 
-sys.path.append("../..")
-warnings.filterwarnings('ignore')
 
-
-class LGBModel:
-
+class CatBoostModel:
     def __init__(self):
         self._preprocess = pp.Preprocess()
-        self._model = lgb.Booster(model_file='models/Saving/lgbm_model.mdl')
-        self.parameters = LGBModel.set_parameters()
+        self._model = CatBoostClassifier()
+        self._model.load_model("models/Saving/CBmodel.cbm")
         self.x = self.y = 0
         self._train_data = None
         self._test_data = None
@@ -23,55 +18,49 @@ class LGBModel:
     def model(self):
         return self._model
 
-    @staticmethod
-    def set_parameters():
-        param_ = {'boosting_type': 'gbdt',
-                  'objective': 'binary',
-                  'metric': 'binary_logloss',
-                  'learning_rate': 0.4,
-                  'num_threads': -1,
-                  'max_depth': 2,
-                  'verbose': -1,
-                  'num_leaves': 8}
-        return param_
-
-    def set_new_model(self, lgb_model=""):
-        if lgb_model == '':
+    def set_new_model(self, cbm_model=""):
+        if cbm_model == '':
             raise IOError("No path to model")
-        self._model = lgb.Booster(model_file=lgb_model)
+        self._model.load_model(cbm_model)
 
     def set_pool(self, path_to_dataset='', test_size=0.3):
+
         if path_to_dataset != '':
             self._preprocess.set_dataset(path_to_dataset)
             self.x, self.y = self._preprocess.process_data_for_gradient_with_label()
+
         x_train, x_test, y_train, y_test = train_test_split(self.x, self.y, test_size=test_size, random_state=42)
-        self._train_data = lgb.Dataset(x_train, label=y_train, free_raw_data=False)
-        self._test_data = lgb.Dataset(x_test, label=y_test, reference=self._train_data, free_raw_data=False)
+        self._train_data = Pool(x_train, y_train)
+        self._test_data = Pool(x_test, y_test)
 
     def get_predict_with_label(self, path_to_data=''):
         if path_to_data == '':
             raise IOError("No path to data")
         self._preprocess.set_dataset(path_to_data)
         self.x, self.y = self._preprocess.process_data_for_gradient_with_label()
-        return self._model.predict(self.x).round(0)
+        return self._model.predict(self.x)
 
     def relearn_model(self, path_to_dataset='', test_size=0.3):
         if path_to_dataset == '':
             raise IOError("No path to dataset")
         self.set_pool(path_to_dataset=path_to_dataset, test_size=test_size)
-        self.parameters = LGBModel.set_parameters()
-        self._model = lgb.train(self.parameters, self._train_data, 200, valid_sets=self._test_data, verbose_eval=False)
+        self._model = CatBoostClassifier(iterations=200,
+                                         depth=2,
+                                         learning_rate=0.4,
+                                         loss_function='Logloss',
+                                         verbose=False)
+        self._model.fit(self._train_data, plot=True)
 
     def get_test_accuracy(self):
-        return accuracy_score(self._test_data.get_label(), self._model.predict(self._test_data.get_data()).round(0))
+        return accuracy_score(self._test_data.get_label(), self._model.predict(self._test_data.get_features()))
 
     def get_test_auc(self):
         return roc_auc_score(self._test_data.get_label(),
-                             self._model.predict(self._test_data.get_data()))
+                             self._model.predict_proba(self._test_data.get_features())[:, 1])
 
     def get_predict_unknown(self, path_to_data=''):
         if path_to_data == '':
             raise IOError("No path to data")
         self._preprocess.set_dataset(path_to_data)
         self.x = self._preprocess.get_data_for_predict_gradient()
-        return self._model.predict(self.x).round(0).astype(int)
+        return self._model.predict(self.x)

@@ -3,7 +3,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from sklearn.model_selection import train_test_split
 import numpy as np
-from source import Preprocess as pp
+from detector import Preprocess as pp
 from models import DatasetHandler as dh
 
 

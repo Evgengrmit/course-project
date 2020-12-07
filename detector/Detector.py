@@ -1,6 +1,6 @@
-from source import KerasModel as ker
-from source import CatBoostModel as cat
-from source import LGBModel as lg
+from detector import KerasModel as ker
+from detector import CatBoostModel as cat
+from detector import LGBModel as lg
 from collections import Counter
 import sys
 import warnings
@@ -38,5 +38,5 @@ class Detector:
         elif 0 in self._count:
             res_str += f'Benign objects: {self._count[0]}'
         elif 1 in self._count:
-            res_str += f'DDoS objects: {self._count[1]}\n'
+            res_str += f'DDoS objects: {self._count[1]}'
         return res_str

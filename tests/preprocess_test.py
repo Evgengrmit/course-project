@@ -3,7 +3,7 @@ import sys
 from collections import Counter
 sys.path.append("..")
 
-from source.Preprocess import Preprocess
+from detector.Preprocess import Preprocess
 
 
 class MyTestCase(unittest.TestCase):
