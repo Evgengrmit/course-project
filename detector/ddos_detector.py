@@ -1,6 +1,7 @@
 from detector import KerasModel as ker
 from detector import CatBoostModel as cat
 from detector import LGBModel as lg
+from models import DatasetHandler as dh
 from collections import Counter
 import sys
 import warnings
@@ -31,12 +32,13 @@ class Detector:
 
     def results(self):
         self._count = dict(Counter(self._predicts))
+        self._count = dh.testKeras(self._model_name, self._count)
         res_str = f'{self._model_name}:\n'
         if len(self._count) == 2:
             res_str += f'DDoS objects: {self._count[1]}\n'
-            res_str += f'Benign objects: {self._count[0]}'
+            res_str += f'Benign objects: {self._count[0]}\n'
         elif 0 in self._count:
-            res_str += f'Benign objects: {self._count[0]}'
+            res_str += f'Benign objects: {self._count[0]}\n'
         elif 1 in self._count:
-            res_str += f'DDoS objects: {self._count[1]}'
+            res_str += f'DDoS objects: {self._count[1]}\n'
         return res_str

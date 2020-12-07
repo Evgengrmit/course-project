@@ -9,6 +9,7 @@ import datetime
 import ipaddress
 import seaborn as sns
 import matplotlib.pyplot as plt
+import copy
 
 
 def get_balanced(path='', size=10, random_state=0):
@@ -143,3 +144,13 @@ def massive(x):
             normal.append(j ^ 1)
 
     return normal
+
+
+def testKeras(model, count=None):
+    if count is None:
+        count = {}
+    if model == 'Keras':
+        t = copy.copy(count)
+        count[0] = max(t[0], t[1])
+        count[1] = min(t[0], t[1])
+    return count
