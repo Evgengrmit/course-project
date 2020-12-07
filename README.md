@@ -1,5 +1,5 @@
 # Курсовой проект (2 курс 3 семестр)
-
+[![Build Status](https://travis-ci.com/Evgengrmit/course-project.svg?branch=master)](https://travis-ci.com/Evgengrmit/course-project)
 ## Интеллектуальное программное обеспечение для решения задач информационной безопасности
 
 Применение машинного обучения в задаче обнаружения сетевых атак (DDoS-атак).
