@@ -81,7 +81,7 @@ class DdosGenerator:
             return
 
         if not os.path.exists(self._result_dir):
-            os.mkdir(attack_data_dir)
+            os.mkdir(self._result_dir)
 
         if not os.path.exists(os.path.join(self._result_dir, dest_ip)):
             os.mkdir(os.path.join(self._result_dir, dest_ip))
@@ -154,6 +154,8 @@ class DdosGenerator:
             # для каждого потока будем генерировать пакеты
             for flow_number in range(flow_counts):
 
+                print(f'Генерируем поток пакетов {flow_number} (всего {flow_counts})...', end='\r')
+
                 # выбираем по занону нормального распределения продолжительность потока
                 flow_duration = random.normalvariate(float(source['Flow Duration Mean']),
                                                      float(source['Flow Duration Std']))
@@ -187,7 +189,7 @@ class DdosGenerator:
                 # промежутки времени. Хотя в реальности это конечно, происходит не так. Но для упрощения сделаем
                 # именно так, т.к. это не повлияет на итоговый датасет
                 packet_list = []
-                
+
                 if packets_fwd_count > 0:
                     delay_between_fwd_packets = flow_duration / packets_fwd_count
 
@@ -200,6 +202,9 @@ class DdosGenerator:
                 psh_bwd_flag_count = float(source['Bwd PSH Flags'])
 
                 # вычисляем задержку для пакетов, отправляемых в обратную сторону и время отправки первого пакета
+
+                delay_between_bwd_packets = 0
+
                 if packets_bwd_count > 0:
                     delay_between_bwd_packets = flow_duration / packets_bwd_count
                     current_timestamp = start_timestamp + delay_between_bwd_packets
@@ -215,9 +220,11 @@ class DdosGenerator:
                 delay_between_flows = random.normalvariate(float(source['Flow IAT Mean']),
                                                            float(source['Flow IAT Std']))
 
-                current_timestamp = start_timestamp + delay_between_bwd_packets * packets_bwd_count + delay_between_flows / 10 ** 6
+                current_timestamp = start_timestamp + flow_duration + delay_between_flows / 10 ** 6
 
                 self._save_packets(packet_list, source_ip, dest_ip)
+
+            print()
 
     def make_test_dataset(self, dest_ip):
         '''
