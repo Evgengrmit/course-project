@@ -11,6 +11,7 @@ jobs:
       script:
         - cd tests
         - python3 -m unittest -v preprocess_test
+        - python3 -m unittest -v generator_test
 
 notifications:
     email: false

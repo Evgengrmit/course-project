@@ -1,7 +1,7 @@
 import unittest
-import sys
+import sys, os
 from collections import Counter
-sys.path.append("..")
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../course-project"))
 
 from detector.Preprocess import Preprocess
 

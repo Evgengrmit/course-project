@@ -1,10 +1,12 @@
 import unittest
-import datetime, os, random
+import datetime, os, random, sys
 
-from generator import DdosGenerator
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../course-project"))
+
+from generator.ddos_generator import DdosGenerator
 from scapy.layers.inet import IP, TCP
-import sys
-sys.path.append("..")
+'''import sys
+sys.path.append("..")'''
 
 
 class TestGenerator(unittest.TestCase):
@@ -103,10 +105,12 @@ class TestGenerator(unittest.TestCase):
 
         self.generator._save_packets(packets_list, self.source_ip, self.dest_ip)
 
-        self.assertTrue(os.path.exists('attack_data'))
-        self.assertTrue(os.path.exists(os.path.join('attack_data', self.dest_ip)))
+        self.assertTrue(os.path.exists(self.generator._result_dir))
+        
+        dir_name = os.path.join(self.generator._result_dir, self.dest_ip)
 
-        dir_name = os.path.join("attack_data", self.dest_ip)
+        self.assertTrue(os.path.exists(dir_name))
+
         dir_items = os.listdir(dir_name)
 
         self.assertEqual(len(dir_items), 1)
