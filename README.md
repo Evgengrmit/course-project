@@ -30,8 +30,14 @@
 8. Сравнить их работоспособность на сгенерированных данных и сделать выводы
 
 ### Описание работы
-Ознакомиться с алгоритмами работы программ и их результатами Вы можете по ссылке
+Ознакомиться с алгоритмами работы программ и их результатами Вы можете по ссылке:
+[Презентация]()
 
+### Примеры графического интерфейса
+#### GUI для генератора
+![b_n_c](theory/images/Main%20README%20images/gen.png)
+#### GUI для детектора
+![b_n_c](theory/images/Main%20README%20images/det.png)
 ### Теоретическая часть
 1. [DDOS-атаки](https://github.com/Evgengrmit/course-project/blob/master/theory/DoS_%26_DDoS.md)
 2. [Нейронные сети](https://github.com/Evgengrmit/course-project/blob/master/theory/artificial_neural_networks.md)
