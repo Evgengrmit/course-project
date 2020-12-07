@@ -1,9 +1,8 @@
 import PySimpleGUI as sg
 from source import Detector as dt
 
-import sys
 import warnings
-
+import sys
 if not sys.warnoptions:
     warnings.simplefilter("ignore")
 

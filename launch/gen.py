@@ -1,9 +1,6 @@
-"""
-Это файл интерфейса программа
-Его единственная проблема - интерфейс блокируется, если нажать на какую-то из кнопок.
-Пока не нашёл как решить это вопрос
-"""
+import sys
 
+sys.path.append("..")
 from generator import generator
 from tkinter import *
 import time
