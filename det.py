@@ -1,7 +1,8 @@
 import PySimpleGUI as sg
-import sys
-sys.path.append('')
-from detector import Detector as dt
+import sys, os
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from detector.ddos_detector import Detector
 import warnings
 
 if not sys.warnoptions:
@@ -19,10 +20,9 @@ def main():
     while True:  # The Event Loop
         event, values = window.read()
         if event == 'Submit':
-
             name_of_model = values[0]
             path_to_data = values['Browse']
-            det = dt.Detector(name_of_model)
+            det = Detector(name_of_model)
             det.find_in_unknown(path_to_data)
             print(det.results())
         if event in (None, 'Exit', 'Cancel'):

@@ -1,4 +1,7 @@
-from generator import generator
+import sys, os
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from generator.ddos_generator import DdosGenerator
 from tkinter import *
 import time
 
@@ -27,7 +30,7 @@ def main():
     window.geometry('500x200')
     window.title('Генератор DDOS-атаки')
 
-    ddos_generator = generator.DdosGenerator()
+    ddos_generator = DdosGenerator()
 
     frame1 = Frame(window)
     frame1.pack(fill=X)
