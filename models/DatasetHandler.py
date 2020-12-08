@@ -150,7 +150,12 @@ def testKeras(model, count=None):
     if count is None:
         count = {}
     if model == 'Keras':
-        t = copy.copy(count)
-        count[0] = max(t[0], t[1])
-        count[1] = min(t[0], t[1])
+        if len(count) == 2:
+            t = copy.copy(count)
+            count[0] = max(t[0], t[1])
+            count[1] = min(t[0], t[1])
+        else:
+            if 1 in count:
+                count[0] = count[1]
+                del count[1]
     return count

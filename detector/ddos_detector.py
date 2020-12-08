@@ -37,8 +37,9 @@ class Detector:
         if len(self._count) == 2:
             res_str += f'DDoS objects: {self._count[1]}\n'
             res_str += f'Benign objects: {self._count[0]}\n'
-        elif 0 in self._count:
-            res_str += f'Benign objects: {self._count[0]}\n'
-        elif 1 in self._count:
-            res_str += f'DDoS objects: {self._count[1]}\n'
+        else:
+            if 0 in self._count:
+                res_str += f'Benign objects: {self._count[0]}\n'
+            elif 1 in self._count:
+                res_str += f'DDoS objects: {self._count[1]}\n'
         return res_str
