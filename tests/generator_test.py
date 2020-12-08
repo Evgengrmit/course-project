@@ -84,12 +84,12 @@ class TestGenerator(unittest.TestCase):
         self._test_packet(packet)
 
     def test_creating_packets_set(self):
-        packets_list = self.generator._create_packet_set(self.packets_count, self.packet_len_avg, self.packet_len_std,
-                                                         self.packet_timestamp, self.all_packets_count,
-                                                         self.syn_flag_count, self.urg_flag_count, self.fin_flag_count,
-                                                         self.psh_flag_count, self.source_ip, self.source_port,
-                                                         self.protocol, self.dest_ip, self.dest_port,
-                                                         self.delay_between_packets, ThreadState())
+        packets_list = self.generator._create_packet_list(self.packets_count, self.packet_len_avg, self.packet_len_std,
+                                                          self.packet_timestamp, self.all_packets_count,
+                                                          self.syn_flag_count, self.urg_flag_count, self.fin_flag_count,
+                                                          self.psh_flag_count, self.source_ip, self.source_port,
+                                                          self.protocol, self.dest_ip, self.dest_port,
+                                                          self.delay_between_packets, ThreadState())
 
         self.assertEqual(len(packets_list), self.packets_count)
 
@@ -98,12 +98,12 @@ class TestGenerator(unittest.TestCase):
 
     def test_saving_packets(self):
 
-        packets_list = self.generator._create_packet_set(self.packets_count, self.packet_len_avg, self.packet_len_std,
-                                                         self.packet_timestamp, self.all_packets_count,
-                                                         self.syn_flag_count, self.urg_flag_count, self.fin_flag_count,
-                                                         self.psh_flag_count, self.source_ip, self.source_port,
-                                                         self.protocol, self.dest_ip, self.dest_port,
-                                                         self.delay_between_packets, ThreadState())
+        packets_list = self.generator._create_packet_list(self.packets_count, self.packet_len_avg, self.packet_len_std,
+                                                          self.packet_timestamp, self.all_packets_count,
+                                                          self.syn_flag_count, self.urg_flag_count, self.fin_flag_count,
+                                                          self.psh_flag_count, self.source_ip, self.source_port,
+                                                          self.protocol, self.dest_ip, self.dest_port,
+                                                          self.delay_between_packets, ThreadState())
 
         self.generator._save_packets(packets_list, self.source_ip, self.dest_ip)
 

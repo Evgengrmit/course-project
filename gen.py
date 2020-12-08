@@ -1,14 +1,8 @@
-"""
-Это файл интерфейса программа
-Его единственная проблема - интерфейс блокируется, если нажать на какую-то из кнопок.
-Пока не нашёл как решить это вопрос
-"""
-import sys, os, time
-
-from tkinter import *
+import os
 from threading import Thread
+from tkinter import *
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from generator.ddos_generator import DdosGenerator, ThreadState
 
 
@@ -26,7 +20,7 @@ class GuiApp:
         frame1 = Frame(self.window)
         frame1.pack(fill=X)
 
-        dest_ip_lb = Label(frame1, text="IP-адрес жертвы", justify=RIGHT, width=30)
+        dest_ip_lb = Label(frame1, text='IP-адрес жертвы', justify=RIGHT, width=30)
         dest_ip_lb.pack(side=LEFT, padx=5, pady=5)
 
         dest_ip_edit = Entry(frame1)
@@ -35,7 +29,7 @@ class GuiApp:
         frame2 = Frame(self.window)
         frame2.pack(fill=X)
 
-        dest_port_lb = Label(frame2, text="Сетевой порт жертвы (80 или 443)", justify=RIGHT, width=30)
+        dest_port_lb = Label(frame2, text='Сетевой порт жертвы (80 или 443)', justify=RIGHT, width=30)
         dest_port_lb.pack(side=LEFT, padx=5, pady=5)
 
         dest_port_edit = Entry(frame2)
@@ -44,7 +38,7 @@ class GuiApp:
         frame3 = Frame(self.window)
         frame3.pack(fill=X)
 
-        bots_count_lb = Label(frame3, text="Количество ботов (от 1 до 34)", justify=RIGHT, width=30)
+        bots_count_lb = Label(frame3, text='Количество ботов (от 1 до 34)', justify=RIGHT, width=30)
         bots_count_lb.pack(side=LEFT, padx=5, pady=5)
 
         bots_count_edit = Entry(frame3)
@@ -55,25 +49,25 @@ class GuiApp:
 
         frame5 = Frame(self.window)
 
-        self.process_lb = Label(frame5, text="Введите параметры ddos атаки", justify=CENTER, width=90,
-                                fg="#875642", font="Arial 11")
+        self.process_lb = Label(frame5, text='Введите параметры ddos атаки', justify=CENTER, width=90,
+                                fg='#875642', font='Arial 11')
         self.process_lb.pack(padx=5, pady=5)
 
-        self.generate_packets_btn = Button(frame4, text="Сгенерировать сетевые пакеты", width=35,
+        self.generate_packets_btn = Button(frame4, text='Сгенерировать сетевые пакеты', width=35,
                                            command=lambda: self.generate_packets(self.ddos_generator,
                                                                                  dest_ip_edit.get(),
                                                                                  dest_port_edit.get(),
                                                                                  bots_count_edit.get()))
         self.generate_packets_btn.pack(side=LEFT, padx=5, pady=5)
 
-        self.make_dataset_btn = Button(frame4, text="Собрать итоговый датасет", width=35,
+        self.make_dataset_btn = Button(frame4, text='Собрать итоговый датасет', width=35,
                                        command=lambda: self.make_dataset(self.ddos_generator, dest_ip_edit.get()))
         self.make_dataset_btn.pack(side=RIGHT, padx=5, pady=5)
 
         frame5.pack(fill=X)
 
     def generate_packets(self, ddos_generator, dest_ip, dest_port, bots_count):
-        self.process_lb['text'] = "Выполняется процесс генерации сетевых пакетов...Ожидайте"
+        self.process_lb['text'] = 'Выполняется процесс генерации сетевых пакетов...Ожидайте'
 
         self.generate_packets_btn.config(state=DISABLED)
         self.make_dataset_btn.config(state=DISABLED)
@@ -90,10 +84,10 @@ class GuiApp:
 
         # ddos_generator.generate_packets()
 
-        self.process_lb['text'] = "Сетевые пакеты сгенерированы. Можете собрать тестовый датасет!"
+        self.process_lb['text'] = 'Сетевые пакеты сгенерированы. Можете собрать тестовый датасет!'
 
     def make_dataset(self, ddos_generator, dest_ip):
-        self.process_lb['text'] = "Выполняется процесс сборки тестового датасета...Ожидайте"
+        self.process_lb['text'] = 'Выполняется процесс сборки тестового датасета...Ожидайте'
 
         self.generate_packets_btn.config(state=DISABLED)
         self.make_dataset_btn.config(state=DISABLED)
@@ -107,14 +101,14 @@ class GuiApp:
         self.generate_packets_btn.config(state=NORMAL)
         self.make_dataset_btn.config(state=NORMAL)
 
-        self.process_lb['text'] = "Процедура формирования тестового датасета завершена!"
+        self.process_lb['text'] = 'Процедура формирования тестового датасета завершена!'
 
     def __del__(self):
         self.thread_state.stop = True
         self.window.destroy()
 
     def run(self):
-        self.window.protocol("WM_DELETE_WINDOW", self.__del__)
+        self.window.protocol('WM_DELETE_WINDOW', self.__del__)
 
         self.window.mainloop()
 
