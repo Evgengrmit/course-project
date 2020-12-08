@@ -359,7 +359,7 @@ class DdosGenerator:
 
             src_data[sourse_ip].append(flow_data)
 
-        filename = os.path.join(dir_name, f'generated_result_{datetime.now().strftime("%d.%m.%Y_%H-%M-%S")}.csv')
+        filename = os.path.join(dir_name, f'../generated_result_{datetime.now().strftime("%d.%m.%Y_%H-%M-%S")}.csv')
         csv_file = open(filename, 'w', newline='')
 
         field_names = list(list(src_data.values())[0][0].keys())
