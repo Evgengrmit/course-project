@@ -147,7 +147,7 @@ class TestGenerator(unittest.TestCase):
         self.assertEqual(len(dir_items), flow_counts)
 
     def test_generate_bots(self):
-        bots_count = random.randint(1, 2)
+        bots_count = 1
 
         self.generator.generate_packets(self.dest_ip, self.dest_port, bots_count, ThreadState())
         dir_name = os.path.join(self.generator._result_dir, self.dest_ip)
