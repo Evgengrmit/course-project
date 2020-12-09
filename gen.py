@@ -53,14 +53,14 @@ class GuiApp:
                                 fg='#875642', font='Arial 11')
         self.process_lb.pack(padx=5, pady=5)
 
-        self.generate_packets_btn = Button(frame4, text='Сгенерировать сетевые пакеты', width=35,
+        self.generate_packets_btn = Button(frame4, text='Сгенерировать пакеты', width=30,
                                            command=lambda: self.generate_packets(self.ddos_generator,
                                                                                  dest_ip_edit.get(),
                                                                                  dest_port_edit.get(),
                                                                                  bots_count_edit.get()))
         self.generate_packets_btn.pack(side=LEFT, padx=5, pady=5)
 
-        self.make_dataset_btn = Button(frame4, text='Собрать итоговый датасет', width=35,
+        self.make_dataset_btn = Button(frame4, text='Собрать датасет', width=35,
                                        command=lambda: self.make_dataset(self.ddos_generator, dest_ip_edit.get()))
         self.make_dataset_btn.pack(side=RIGHT, padx=5, pady=5)
 

@@ -64,7 +64,7 @@ DDoS-атака). Рассмотреть следующие методы маш�
 
 #### GUI для генератора
 
-![b_n_c](theory/images/Main%20README%20images/gen.png)
+![b_n_c](theory/images/Main%20README%20images/gen2.png)
 
 #### GUI для детектора
 
