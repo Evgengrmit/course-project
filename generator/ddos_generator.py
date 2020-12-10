@@ -22,7 +22,7 @@ class DdosGenerator:
 
         self._result_dir = os.path.join(script_path, 'attack_data')
 
-        prepared_dataset_path = os.path.join(script_path, 'ddos_src.csv')
+        prepared_dataset_path = os.path.join(script_path, 'ddos_benign_src.csv')
 
         with open(prepared_dataset_path, "r") as file:
             csv_reader = csv.DictReader(file, delimiter=",")
@@ -37,7 +37,7 @@ class DdosGenerator:
                        dest_port):
 
         """
-           Генерация сетевых пакетов
+           Генерация одного сетевого пакета
         """
         if protocol == 6:
 

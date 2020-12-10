@@ -7,9 +7,6 @@ from generator.ddos_generator import DdosGenerator, ThreadState
 from scapy.layers.inet import IP, TCP
 from scapy.utils import rdpcap
 
-'''import sys
-sys.path.append("..")'''
-
 
 class TestGenerator(unittest.TestCase):
 
