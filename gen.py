@@ -1,3 +1,5 @@
+# Copyright 2020 Evgenij Grigorev evgengrmit@icloud.com
+
 import os
 from threading import Thread
 from tkinter import *

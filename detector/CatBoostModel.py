@@ -1,3 +1,5 @@
+# Copyright 2020 Evgenij Grigorev evgengrmit@icloud.com
+
 from catboost import CatBoostClassifier, Pool
 from sklearn.model_selection import train_test_split
 from detector import Preprocess as pp

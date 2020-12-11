@@ -1,3 +1,4 @@
+# Copyright 2020 Evgenij Grigorev evgengrmit@icloud.com
 import csv
 import datetime
 

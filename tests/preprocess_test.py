@@ -1,5 +1,8 @@
+# Copyright 2020 Evgenij Grigorev evgengrmit@icloud.com
+
 import unittest
 import sys, os
+
 from collections import Counter
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../course-project"))
 

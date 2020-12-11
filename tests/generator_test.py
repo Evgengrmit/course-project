@@ -1,3 +1,5 @@
+# Copyright 2020 Evgenij Grigorev evgengrmit@icloud.com
+
 import unittest
 import datetime, os, random, sys, math
 

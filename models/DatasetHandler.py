@@ -1,6 +1,4 @@
-"""
-Function to prepare big Dataset
-"""
+# Copyright 2020 Evgenij Grigorev evgengrmit@icloud.com
 
 import numpy as np
 import pandas as pd

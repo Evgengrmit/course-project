@@ -1,3 +1,5 @@
+# Copyright 2020 Evgenij Grigorev evgengrmit@icloud.com
+
 import pandas as pd
 from models import DatasetHandler as dh
 from sklearn.preprocessing import MinMaxScaler

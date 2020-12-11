@@ -1,3 +1,5 @@
+# Copyright 2020 Evgenij Grigorev evgengrmit@icloud.com
+
 import keras
 from keras.models import Sequential
 from keras.layers import Dense

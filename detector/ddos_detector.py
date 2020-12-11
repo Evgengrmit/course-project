@@ -1,3 +1,5 @@
+# Copyright 2020 Evgenij Grigorev evgengrmit@icloud.com
+
 from detector import KerasModel as ker
 from detector import CatBoostModel as cat
 from detector import LGBModel as lg
